@@ -1,0 +1,196 @@
+@startuml CineSphere Class Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classFontStyle bold
+skinparam backgroundColor #F8F9FA
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #343A40
+
+title CineSphere - Diagramme de Classes
+
+' ===== MODELS =====
+class User {
+  -id: bigint
+  -name: string
+  -email: string
+  -password: string
+  -phone: string
+  -email_verified_at: datetime
+  -remember_token: string
+  -created_at: timestamp
+  -updated_at: timestamp
+  --
+  +fillable: array
+  +hidden: array
+  --
+  +casts(): array
+  +comments(): HasMany
+}
+
+class Movie {
+  -id: bigint
+  -title: string
+  -description: text
+  -year: integer
+  -genre: string
+  -image: string
+  -image_name: string
+  -created_at: timestamp
+  -updated_at: timestamp
+  --
+  +fillable: array
+  --
+  +comments(): HasMany
+}
+
+class Comment {
+  -id: bigint
+  -user_id: bigint
+  -movie_id: bigint
+  -content: text
+  -created_at: timestamp
+  -updated_at: timestamp
+  --
+  +fillable: array
+  --
+  +user(): BelongsTo
+  +movie(): BelongsTo
+}
+
+' ===== CONTROLLERS =====
+class MovieController {
+  +index(): View
+  +show(id): View
+  +create(): View
+  +store(request): RedirectResponse
+  +edit(id): View
+  +update(request, id): RedirectResponse
+  +destroy(id): RedirectResponse
+  +omdbSearch(request): View
+}
+
+class CommentController {
+  +store(request, id): RedirectResponse
+}
+
+class ProfileController {
+  +show(): View
+  +update(request): RedirectResponse
+  +destroy(request): RedirectResponse
+  +updatePassword(request): RedirectResponse
+}
+
+class LoginController {
+  +show(): View
+  +authenticate(request): RedirectResponse
+  +logout(request): RedirectResponse
+}
+
+class RegisterController {
+  +show(): View
+  +register(request): RedirectResponse
+}
+
+class HomeController {
+  +index(): View
+}
+
+class StaticPageController {
+  +contact(): View
+}
+
+' ===== RELATIONSHIPS =====
+User ||--o{ Comment : "a"
+Movie ||--o{ Comment : "a"
+User ||--o{ Movie : "gère" (via controllers)
+
+' ===== VIEWS =====
+package "Views" {
+  class MovieViews {
+    +index.blade.php
+    +show.blade.php
+    +create.blade.php
+    +edit.blade.php
+    +omdb.blade.php
+  }
+  
+  class UserViews {
+    +login.blade.php
+    +register.blade.php
+    +profile.blade.php
+    +dashboard.blade.php
+  }
+  
+  class LayoutViews {
+    +app.blade.php
+    +cinesphere.blade.php
+  }
+  
+  class OtherViews {
+    +welcome.blade.php
+    +contact.blade.php
+  }
+}
+
+' ===== MIGRATIONS =====
+package "Database" {
+  class UsersMigration {
+    +up(): void
+    +down(): void
+  }
+  
+  class MoviesMigration {
+    +up(): void
+    +down(): void
+  }
+  
+  class CommentsMigration {
+    +up(): void
+    +down(): void
+  }
+}
+
+' ===== SEEDERS =====
+class MovieSeeder {
+  +run(): void
+}
+
+class DatabaseSeeder {
+  +run(): void
+}
+
+' ===== COMMANDS =====
+package "Console Commands" {
+  class ShowMovies {
+    +handle(): void
+  }
+  
+  class ListMovieTitles {
+    +handle(): void
+  }
+  
+  class CheckMovieImages {
+    +handle(): void
+  }
+}
+
+' ===== RELATIONSHIPS WITH VIEWS =====
+MovieController --> MovieViews : "utilise"
+CommentController --> MovieViews : "utilise"
+ProfileController --> UserViews : "utilise"
+LoginController --> UserViews : "utilise"
+RegisterController --> UserViews : "utilise"
+HomeController --> OtherViews : "utilise"
+StaticPageController --> OtherViews : "utilise"
+
+' ===== NOTES =====
+note top of User : "Modèle d'authentification Laravel"
+note top of Movie : "Entité principale de l'application"
+note top of Comment : "Système de commentaires"
+note top of MovieController : "Gestion CRUD des films"
+note top of CommentController : "Gestion des commentaires"
+note top of ProfileController : "Gestion des profils utilisateurs"
+
+@enduml 
